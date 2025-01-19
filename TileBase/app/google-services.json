@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "590725160500",
+    "project_id": "tilebase-d7c3e",
+    "storage_bucket": "tilebase-d7c3e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:590725160500:android:ea740217be1dbd6d09f461",
+        "android_client_info": {
+          "package_name": "com.example.tilebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "590725160500-chm1jc8hcp8acnh3d5ancj4e1cl9rq16.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBttmH894vmXcrB7kVai1iB-zRDpEXdZV4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "590725160500-chm1jc8hcp8acnh3d5ancj4e1cl9rq16.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
