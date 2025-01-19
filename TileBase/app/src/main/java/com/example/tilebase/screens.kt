@@ -1,31 +1,52 @@
 package com.example.tilebase
 
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.annotation.SuppressLint
-
-import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.*
-
-//noinspection UsingMaterialAndMaterial3Libraries
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 
 //-----------------------------------------------------------------------
 
 @Composable
-fun LoginScreen(navController: NavController, firebaseAuth: FirebaseAuth, viewModel: RegisterViewModel = viewModel()) {
+fun LoginScreen(navController: NavController, viewModel: RegisterViewModel = viewModel()) {
+    val context = LocalContext.current // Pobranie kontekstu w obrębie composable
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
@@ -57,6 +78,14 @@ fun LoginScreen(navController: NavController, firebaseAuth: FirebaseAuth, viewMo
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true
         )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { navController.navigate("main") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Sing In")
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
         error?.let {
             Text(text = it, color = Color.Red, style = MaterialTheme.typography.bodyMedium)
@@ -69,45 +98,22 @@ fun LoginScreen(navController: NavController, firebaseAuth: FirebaseAuth, viewMo
                 onClick = {
                     isLoading = true
                     error = null
-                    firebaseAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener { task ->
-                            isLoading = false
-                            if (task.isSuccessful) {
-                                navController.navigate("main")
-                            } else {
-                                error = task.exception?.localizedMessage ?: "Sign in failed"
-                            }
-                        }
+                    viewModel.signInWithGoogle(context) // Przekazanie kontekstu
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Sign in")
+                Text("Sign in with Google", color = Color.White)
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { viewModel.signInWithGoogle(navController) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF4285F4)
-                )
-
-            ) {
-                Text("Sign in with Google", color = Color.White)
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
                 onClick = { navController.navigate("register") },
                 modifier = Modifier.fillMaxWidth()
-
             ) {
                 Text("Create an account")
             }
-
         }
     }
 }
-
-
 
 //-----------------------------------------------------------------------
 
@@ -117,6 +123,7 @@ fun RegisterScreen(
     viewModel: RegisterViewModel = viewModel()
 ) {
     val state = viewModel.state.collectAsState()
+    val context = LocalContext.current // Pobranie kontekstu w composable
 
     Column(
         modifier = Modifier
@@ -166,7 +173,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.signInWithGoogle(navController) },
+            onClick = { viewModel.signInWithGoogle(context) }, // Przekazanie kontekstu
             colors = ButtonDefaults.buttonColors(Color(0xFF4285F4)),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -195,6 +202,7 @@ fun PasswordField(value: String, onValueChange: (String) -> Unit) {
         modifier = Modifier.fillMaxWidth()
     )
 }
+
 
 
 //-----------------------------------------------------------------------

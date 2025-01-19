@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun NavGraph(navController: NavHostController,firebaseAuth: FirebaseAuth) {
     NavHost(navController = navController, startDestination = "register") {
-        composable("login") { LoginScreen(navController, firebaseAuth, viewModel()) }
+        composable("login") { LoginScreen(navController, viewModel()) }
         composable("register") {RegisterScreen(navController,viewModel()) }
         composable("main") { MainScreen(navController) }
         composable("profile") { ProfileScreen(navController) }
