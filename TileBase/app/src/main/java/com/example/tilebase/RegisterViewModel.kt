@@ -1,20 +1,12 @@
 package com.example.tilebase
-
-import android.app.Activity
-import android.content.Context
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 data class RegisterState(
     val email: String = "",
@@ -27,7 +19,7 @@ class RegisterViewModel : ViewModel() {
     private val _state = MutableStateFlow(RegisterState())
     val state: StateFlow<RegisterState> = _state
 
-    private val firebaseAuth = FirebaseAuth.getInstance()
+    private var auth = Firebase.auth
 
     // Aktualizowanie emaila
     fun onEmailChange(newEmail: String) {
@@ -39,63 +31,73 @@ class RegisterViewModel : ViewModel() {
         _state.value = _state.value.copy(password = newPassword)
     }
 
-    // Funkcja do rejestracji użytkownika za pomocą emaila i hasła
-    fun register(navController: NavController) {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, error = null)
-            firebaseAuth.createUserWithEmailAndPassword(_state.value.email, _state.value.password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        navController.navigate("login")
-                    } else {
-                        _state.value = _state.value.copy(
-                            isLoading = false,
-                            error = task.exception?.message
-                        )
-                        navController.navigate("register")
-                    }
+    fun signUp(navController: NavController) {
+        if (_state.value.email.isBlank() || _state.value.password.isBlank()) {
+            _state.value = _state.value.copy(error = "Email and password cannot be empty.")
+            return
+        }
+
+        _state.value = _state.value.copy(isLoading = true, error = null)
+        auth.createUserWithEmailAndPassword(_state.value.email, _state.value.password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "createUserWithEmail:success")
+                    val user = auth.currentUser
+                    Log.d(TAG, user?.displayName.toString())
+                    navController.navigate("login")
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
+                    navController.navigate("register")
                 }
-        }
-    }
-
-    // Funkcja do logowania użytkownika za pomocą Google
-    fun signInWithGoogle(context: Context) {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("YOUR_WEB_CLIENT_ID") // Zamień na swój Web Client ID
-            .requestEmail()
-            .build()
-
-        val googleSignInClient = GoogleSignIn.getClient(context, gso)
-
-        val signInIntent = googleSignInClient.signInIntent
-        (context as Activity).startActivityForResult(signInIntent, RC_SIGN_IN)
-    }
-
-    // Obsługa wyniku logowania przez Google
-    fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>, navController: NavController) {
-        viewModelScope.launch {
-            try {
-                val account = task.getResult(ApiException::class.java)
-                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-
-                firebaseAuth.signInWithCredential(credential)
-                    .addOnCompleteListener { authTask ->
-                        if (authTask.isSuccessful) {
-                            navController.navigate("main")
-                        } else {
-                            _state.value = _state.value.copy(
-                                isLoading = false,
-                                error = authTask.exception?.message
-                            )
-                            navController.navigate("register")
-                        }
-                    }
-            } catch (e: ApiException) {
-                _state.value = _state.value.copy(isLoading = false, error = e.message)
             }
+    }
+
+    fun signIn(navController: NavController) {
+        if (_state.value.email.isBlank() || _state.value.password.isBlank()) {
+            _state.value = _state.value.copy(error = "Email and password cannot be empty.")
+            return
+        }
+
+        _state.value = _state.value.copy(isLoading = true, error = null)
+
+        auth.signInWithEmailAndPassword(_state.value.email, _state.value.password)
+            .addOnCompleteListener{ task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "signInWithEmail:success")
+                    auth.currentUser
+                    navController.navigate("main")
+
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "signInWithEmail:failure", task.exception)
+                    navController.navigate("login")
+                }
+            }
+    }
+
+    fun signOut(navController: NavController){
+        _state.value = RegisterState() // Reset to initial state
+        Firebase.auth.signOut()
+        navController.navigate("login")
+
+    }
+
+    fun checkUserSession(navController: NavController) {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            // Użytkownik jest zalogowany, przejdź do głównego ekranu
+            navController.navigate("main")
+        } else {
+            // Użytkownik niezalogowany, przejdź do ekranu logowania
+            navController.navigate("register")
         }
     }
+
 }
+
 
 
 

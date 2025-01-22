@@ -5,15 +5,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun NavGraph(navController: NavHostController,firebaseAuth: FirebaseAuth) {
+fun NavGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = "register") {
-        composable("login") { LoginScreen(navController, viewModel()) }
+        composable("login") { LoginScreen(navController,viewModel()) }
         composable("register") {RegisterScreen(navController,viewModel()) }
         composable("main") { MainScreen(navController) }
         composable("profile") { ProfileScreen(navController) }
-        composable("settings") { SettingsScreen(navController) }
+        composable("settings") { SettingsScreen(navController, viewModel()) }
     }
 }
