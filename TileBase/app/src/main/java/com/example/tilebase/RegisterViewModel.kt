@@ -12,13 +12,14 @@ data class RegisterState(
     val email: String = "",
     val password: String = "",
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val name: String = "",
+    val photoUrl: String = ""
 )
 
 class RegisterViewModel : ViewModel() {
     private val _state = MutableStateFlow(RegisterState())
     val state: StateFlow<RegisterState> = _state
-
     private var auth = Firebase.auth
 
     // Aktualizowanie emaila
@@ -69,7 +70,7 @@ class RegisterViewModel : ViewModel() {
                     Log.d(TAG, "signInWithEmail:success")
                     auth.currentUser
                     navController.navigate("main")
-
+                    getUserData()
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
@@ -90,12 +91,25 @@ class RegisterViewModel : ViewModel() {
         if (currentUser != null) {
             // Użytkownik jest zalogowany, przejdź do głównego ekranu
             navController.navigate("main")
+            getUserData()
         } else {
             // Użytkownik niezalogowany, przejdź do ekranu logowania
             navController.navigate("register")
         }
     }
 
+    private fun getUserData(){
+        val user = Firebase.auth.currentUser
+        user?.let {
+            for (profile in it.providerData) {
+                // Id of the provider (ex: google.com)
+                _state.value = _state.value.copy(name = profile?.displayName.toString())
+                _state.value = _state.value.copy(email = profile?.email.toString())
+                _state.value = _state.value.copy(photoUrl = profile?.photoUrl.toString())
+
+            }
+        }
+    }
 }
 
 

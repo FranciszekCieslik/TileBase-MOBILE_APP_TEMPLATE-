@@ -1,4 +1,4 @@
-package com.example.tilebase
+package com.example.tilebase.ui.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.border
@@ -32,6 +32,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.tilebase.MainActivity
+import com.example.tilebase.R
+import com.example.tilebase.RegisterViewModel
 
 @SuppressLint("ContextCastToActivity")
 @Composable

@@ -22,7 +22,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
 class MainActivity : ComponentActivity() {
-    private val registerViewModel: RegisterViewModel by viewModels()
+    private val viewModel: RegisterViewModel by viewModels()
     private lateinit var navController: NavHostController
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,8 +32,8 @@ class MainActivity : ComponentActivity() {
         // Initialize Firebase Auth
         setContent {
             navController = rememberNavController() // Inicjalizacja navController
-            App(navController) // Przekazanie NavController do głównego komponentu
-            registerViewModel.checkUserSession(navController)
+            App(navController,  viewModel) // Przekazanie NavController do głównego komponentu
+            viewModel.checkUserSession(navController)
         }
 
         //---GOOGLE----
@@ -105,6 +105,6 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun App(navController: NavHostController) {
-    NavGraph(navController)
+fun App(navController: NavHostController, viewModel: RegisterViewModel) {
+    NavGraph(navController, viewModel)
 }
