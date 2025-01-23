@@ -70,7 +70,7 @@ fun SettingsScreen(navController: NavController,
 
                 // Przycisk usunięcia konta
                 Button(
-                    onClick = {  },
+                    onClick = {viewModel.removeUser(navController)},
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),

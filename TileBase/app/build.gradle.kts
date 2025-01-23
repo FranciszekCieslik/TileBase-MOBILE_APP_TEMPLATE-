@@ -85,5 +85,7 @@ dependencies {
 
     // Also add the dependency for the Google Play services library and specify its version
     implementation("com.google.android.gms:play-services-auth:21.3.0")
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
 }

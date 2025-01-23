@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 data class RegisterState(
     val email: String = "",
     val password: String = "",
-    val isLoading: Boolean = false,
+    var isLoading: Boolean = false,
     val error: String? = null,
     val name: String = "",
     val photoUrl: String = ""
@@ -46,7 +46,7 @@ class RegisterViewModel : ViewModel() {
                     Log.d(TAG, "createUserWithEmail:success")
                     val user = auth.currentUser
                     Log.d(TAG, user?.displayName.toString())
-                    navController.navigate("login")
+                    navController.navigate("login"){_state.value.isLoading = false}
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
@@ -69,8 +69,7 @@ class RegisterViewModel : ViewModel() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success")
                     auth.currentUser
-                    navController.navigate("main")
-                    getUserData()
+                    navController.navigate("main"){getUserData()}
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
@@ -90,12 +89,22 @@ class RegisterViewModel : ViewModel() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
             // Użytkownik jest zalogowany, przejdź do głównego ekranu
-            navController.navigate("main")
-            getUserData()
+            navController.navigate("main"){getUserData()}
         } else {
             // Użytkownik niezalogowany, przejdź do ekranu logowania
             navController.navigate("register")
         }
+    }
+
+     fun removeUser(navController: NavController){
+         val user = Firebase.auth.currentUser!!
+         user.delete()
+             .addOnCompleteListener { task ->
+                 if (task.isSuccessful) {
+                     Log.d(TAG, "User account deleted.")
+                 }
+             }
+         signOut(navController)
     }
 
     private fun getUserData(){
@@ -103,9 +112,9 @@ class RegisterViewModel : ViewModel() {
         user?.let {
             for (profile in it.providerData) {
                 // Id of the provider (ex: google.com)
-                _state.value = _state.value.copy(name = profile?.displayName.toString())
-                _state.value = _state.value.copy(email = profile?.email.toString())
-                _state.value = _state.value.copy(photoUrl = profile?.photoUrl.toString())
+                _state.value = _state.value.copy(name = profile.displayName.toString())
+                _state.value = _state.value.copy(email = profile.email.toString())
+                _state.value = _state.value.copy(photoUrl = profile.photoUrl.toString())
 
             }
         }

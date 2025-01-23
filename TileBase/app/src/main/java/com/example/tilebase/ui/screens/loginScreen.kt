@@ -46,6 +46,9 @@ fun LoginScreen(
     val activity = LocalContext.current as? MainActivity
         ?: throw IllegalStateException("MainActivity is required for LoginScreen")
 
+    val isEmailValid = state.value.email.matches(Regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$"))
+    val isPasswordValid = state.value.password.length >= 8
+
     val error by remember { mutableStateOf<String?>(null) }
     val isLoading by remember { mutableStateOf(false) }
 
@@ -61,11 +64,13 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
         EmailField(
             value = state.value.email,
-            onValueChange = { viewModel.onEmailChange(it) }
+            onValueChange = { viewModel.onEmailChange(it) },
+            isEmailValid
         )
         PasswordField(
             value = state.value.password,
-            onValueChange = { viewModel.onPasswordChange(it) }
+            onValueChange = { viewModel.onPasswordChange(it) },
+            isPasswordValid
         )
 
         Spacer(modifier = Modifier.height(16.dp))
