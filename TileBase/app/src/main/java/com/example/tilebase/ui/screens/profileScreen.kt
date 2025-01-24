@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Icon
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -72,7 +74,7 @@ fun ProfileScreen(navController: NavController,
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(state.value.photoUrl.toString() != "null") {
+            if(state.value.photoUrl != "null") {
                 AsyncImage(
                     model = state.value.photoUrl,
                     contentDescription = "Profile Picture",
@@ -100,10 +102,8 @@ fun ProfileScreen(navController: NavController,
             }
             Spacer(modifier = Modifier.height(16.dp))
 
-
-
             // Nazwa użytkownika
-            if(state.value.name.isNotEmpty()) {
+            if(state.value.name.isNotEmpty() or state.value.name.isNotBlank()) {
                 Text(
                     text = state.value.name,
                     style = MaterialTheme.typography.bodyLarge

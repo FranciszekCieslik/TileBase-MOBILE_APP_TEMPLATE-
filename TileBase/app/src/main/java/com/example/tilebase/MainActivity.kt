@@ -33,7 +33,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             navController = rememberNavController() // Inicjalizacja navController
             App(navController,  viewModel) // Przekazanie NavController do głównego komponentu
-            viewModel.checkUserSession(navController)
         }
 
         //---GOOGLE----

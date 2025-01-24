@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+
+    kotlin("plugin.serialization") version "1.9.10" // Dopasuj wersję do swojego projektu
 }
 
 android {
@@ -87,5 +89,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.3.0")
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
 }

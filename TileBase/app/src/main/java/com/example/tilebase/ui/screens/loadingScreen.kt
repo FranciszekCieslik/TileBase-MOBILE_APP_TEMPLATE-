@@ -11,11 +11,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.tilebase.RegisterViewModel
 
 @Composable
 fun LoadingScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: RegisterViewModel = viewModel()
 ){
     Column(
         modifier = Modifier
@@ -26,4 +29,5 @@ fun LoadingScreen(
     ) {
         CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.LightGray)
     }
+    viewModel.checkUserSession(navController)
 }
