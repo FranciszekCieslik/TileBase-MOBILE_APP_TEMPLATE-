@@ -19,20 +19,27 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class MainActivity : ComponentActivity() {
     private val viewModel: RegisterViewModel by viewModels()
+    private lateinit var dataStoreProvider: DataStoreProvider
     private lateinit var navController: NavHostController
+    private  lateinit var db:FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Inicjalizacja Firebase
         FirebaseApp.initializeApp(this)
+        db = Firebase.firestore
+
+        dataStoreProvider = DataStoreProvider()
         // Initialize Firebase Auth
         setContent {
             navController = rememberNavController() // Inicjalizacja navController
-            App(navController,  viewModel) // Przekazanie NavController do głównego komponentu
+            App(navController,  viewModel, dataStoreProvider) // Przekazanie NavController do głównego komponentu
         }
 
         //---GOOGLE----
@@ -52,13 +59,14 @@ class MainActivity : ComponentActivity() {
 
     //---GOOGLE---
 
-    private val REQ_ONE_TAP = 2
+    private val reqONEtap = 2
     private lateinit var oneTapClient: SignInClient
     private lateinit var signInRequest: BeginSignInRequest
 
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
     @SuppressLint("MissingSuperCall")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQ_ONE_TAP) {
+        if (requestCode == reqONEtap) {
             try {
                 val credential = oneTapClient.getSignInCredentialFromIntent(data)
                 val idToken = credential.googleIdToken
@@ -89,7 +97,7 @@ class MainActivity : ComponentActivity() {
             .addOnSuccessListener { result ->
                 startIntentSenderForResult(
                     result.pendingIntent.intentSender,
-                    REQ_ONE_TAP,
+                    reqONEtap,
                     null,
                     0,
                     0,
@@ -104,6 +112,6 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun App(navController: NavHostController, viewModel: RegisterViewModel) {
-    NavGraph(navController, viewModel)
+fun App(navController: NavHostController, viewModel: RegisterViewModel, dataStoreProvider: DataStoreProvider) {
+    NavGraph(navController, viewModel, dataStoreProvider)
 }

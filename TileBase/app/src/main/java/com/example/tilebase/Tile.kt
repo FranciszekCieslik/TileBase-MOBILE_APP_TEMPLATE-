@@ -12,9 +12,9 @@ class TileList {
 
     fun addTile(tile: Tile) {
         updateId()
-        if (tiles.any { it.id == tile.id }) {
-            throw IllegalArgumentException("Tile with ID ${tile.id} already exists.")
-        }
+//        if (tiles.any { it.id == tile.id }) {
+//            throw IllegalArgumentException("Tile with ID ${tile.id} already exists.")
+//        }
         tiles.add(tile)
         updateId()
     }

@@ -78,6 +78,8 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore")
+
 
 
 
@@ -86,10 +88,11 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
 
     // Also add the dependency for the Google Play services library and specify its version
-    implementation("com.google.android.gms:play-services-auth:21.3.0")
+    implementation(libs.play.services.auth)
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation(libs.kotlinx.serialization.json)
+    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
 
 }

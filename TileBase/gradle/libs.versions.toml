@@ -1,8 +1,11 @@
 [versions]
+accompanistReorderable = "1.1"
+accompanistReorderableVersion = "0.32.0"
 agp = "8.7.2"
 coilCompose = "3.0.4"
 firebaseBom = "32.1.0"
 firebaseBomVersion = "33.8.0"
+googleAccompanistReorderable = "0.37.0"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -23,6 +26,9 @@ ui = "1.4.0"
 appcompat = "1.7.0"
 
 [libraries]
+accompanist-reorderable = { module = "com.google.accompanist:accompanist-reorderable", version.ref = "accompanistReorderable" }
+accompanist-reorderable-v0320 = { module = "com.google.accompanist:accompanist-reorderable", version.ref = "accompanistReorderableVersion" }
+accompanist-reorderable-v0370 = { module = "com.google.accompanist:accompanist-reorderable", version.ref = "googleAccompanistReorderable" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
 androidx-material3-v110 = { module = "androidx.compose.material3:material3", version.ref = "material3Version" }

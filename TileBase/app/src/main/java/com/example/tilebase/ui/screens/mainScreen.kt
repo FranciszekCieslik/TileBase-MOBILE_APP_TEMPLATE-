@@ -3,6 +3,7 @@ package com.example.tilebase.ui.screens
 //noinspection UsingMaterialAndMaterial3Libraries
 //noinspection UsingMaterialAndMaterial3Libraries
 //noinspection UsingMaterialAndMaterial3Libraries
+
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,6 +33,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,19 +43,36 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.tilebase.DataStoreProvider
 import com.example.tilebase.Tile
 import com.example.tilebase.TileList
+import org.burnoutcrew.reorderable.ReorderableItem
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen(navController: NavController,
+               dataStoreProvider: DataStoreProvider
+) {
+
+    LaunchedEffect(navController.currentBackStackEntry) {
+        (dataStoreProvider.data)
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            dataStoreProvider.saveTileList()
+        }
+    }
+
     Scaffold(
         bottomBar = {
             BottomNavBar(navController, selectedRoute = "main")
@@ -72,14 +93,7 @@ fun MainScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val tileList = TileList()
-
-            // Dodaj kafelki
-            tileList.addTile(Tile(1, "#FF5733"))
-            tileList.addTile(Tile(2, "#33FF57"))
-            tileList.addTile(Tile(3, "#3357FF"))
-
-            TileListScreen(tileList)
+                TileListScreen(dataStoreProvider.data)
 
         }
     }
@@ -88,8 +102,18 @@ fun MainScreen(navController: NavController) {
 //--------------Tiles-----------------------
 
 @Composable
-fun TileListScreen(tileList: TileList) {
-    val tiles = remember { mutableStateListOf<Tile>().apply { addAll(tileList.getAllTiles()) } }
+fun TileListScreen(tileListState: MutableState<TileList>) {
+    // Utwórz SnapshotStateList<Tile>, który będzie obserwował kafelki
+    val tiles = remember { mutableStateListOf<Tile>() }
+    val tileList: TileList = tileListState.value
+
+    val state = rememberReorderableLazyListState(
+        onMove = { from, to ->
+            // Zamień elementy na liście
+            tiles.move(from.index, to.index)
+            tileList.swapTiles(from.index, to.index) // Aktualizuj TileList
+        }
+    )
 
     Column(
         modifier = Modifier
@@ -106,60 +130,68 @@ fun TileListScreen(tileList: TileList) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-            IconButton(onClick = {
+        // Przycisk dodawania kafelka
+        IconButton(
+            onClick = {
                 val newTile = Tile(id = tiles.size + 1, color = "#ccd0e3") // Domyślnie biały kafelek
                 tiles.add(newTile)
                 tileList.addTile(newTile)
             },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
-                    .border(2.dp, Color.Black, RoundedCornerShape(8.dp))
-                    .background(Color(android.graphics.Color.parseColor("#ccd0e3")), RoundedCornerShape(8.dp))
-
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "ADD"
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+                .border(2.dp, Color.Black, RoundedCornerShape(8.dp))
+                .background(
+                    Color(android.graphics.Color.parseColor("#ccd0e3")),
+                    RoundedCornerShape(8.dp)
                 )
-            }
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "ADD"
+            )
+        }
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            state = state.listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .reorderable(state),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             itemsIndexed(tiles, key = { _, tile -> tile.id }) { index, tile ->
-                DraggableTile(
-                    tile = tile,
-                    onRemove = {
-                        tiles.remove(tile)
-                        tileList.removeTileById(tile.id) // Usunięcie z TileList
-                    },
-                    updateTileColor = { newColor ->
-                        tiles[index] = tile.copy(color = newColor)
-                        tileList.updateTileColor(tile.id, newColor) // Aktualizacja koloru w TileList
-                    },
-                    onDragEnd = { fromIndex, toIndex ->
-                        if (toIndex in tiles.indices) {
-                            val movedTile = tiles.removeAt(fromIndex)
-                            tiles.add(toIndex, movedTile)
-                            tileList.swapTiles(fromIndex, toIndex) // Zaktualizuj TileList
+                ReorderableItem(
+                    state = state,
+                    key = tile.id, // Klucz elementu
+                    defaultDraggingModifier = Modifier
+                ) { isDragging ->
+                    DraggableTile(
+                        tile = tile,
+                        isDragging = isDragging,
+                        onRemove = {
+                            tiles.remove(tile)
+                            tileList.removeTileById(tile.id) // Usuń z TileList
+                        },
+                        updateTileColor = { newColor ->
+                            tiles[index] = tile.copy(color = newColor)
+                            tileList.updateTileColor(tile.id, newColor) // Zaktualizuj kolor w TileList
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }
 }
 
-
 @Composable
 fun DraggableTile(
     tile: Tile,
+    isDragging: Boolean,
     onRemove: () -> Unit,
-    updateTileColor: (String) -> Unit,
-    onDragEnd: (Int, Int) -> Unit
+    updateTileColor: (String) -> Unit
 ) {
     var isDialogOpen by remember { mutableStateOf(false) }  // Stan dla okna dialogowego
-
+    val alpha = if (isDragging) 0.6f else 1f
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -167,6 +199,7 @@ fun DraggableTile(
             .background(Color(android.graphics.Color.parseColor(tile.color)), RoundedCornerShape(8.dp))
             .border(2.dp, Color.Black, RoundedCornerShape(8.dp))
             .padding(8.dp)
+            .alpha(alpha) // Zastosuj przezroczystość
     ) {
         Row(
             modifier = Modifier
@@ -180,26 +213,28 @@ fun DraggableTile(
                 color = Color.White,
                 fontSize = 16.sp
             )
-                // Przycisk do zmiany koloru
-                IconButton(
-                    onClick = { isDialogOpen = true }) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "edit color",
-                        tint = Color.White
-                    )
-                }
 
-                // Przycisk do usunięcia
-                IconButton(
-                    onClick = onRemove) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "delete tile",
-                        tint = Color.White
-                    )
-                }
+            // Przycisk do zmiany koloru
+            IconButton(
+                onClick = { isDialogOpen = true }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "edit color",
+                    tint = Color.White
+                )
+            }
 
+            // Przycisk do usunięcia
+            IconButton(
+                onClick = onRemove
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "delete tile",
+                    tint = Color.White
+                )
+            }
         }
     }
 
@@ -208,7 +243,6 @@ fun DraggableTile(
         ColorPalette(
             onDismiss = { isDialogOpen = false },
             onColorSelected = { selectedColor ->
-                tile.color = selectedColor // Zaktualizuj kolor kafelka
                 updateTileColor(selectedColor) // Przekaż zmianę koloru do rodzica
                 isDialogOpen = false
             }
@@ -225,24 +259,25 @@ fun ColorPalette(
         onDismissRequest = onDismiss,
         title = { Text("Select Color") },
         text = {
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically){
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 // Lista dostępnych kolorów
                 val colors = listOf("#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#FFD700")
                 for (color in colors) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp) // Określamy rozmiar okręgu
-                            .clip(CircleShape) // Nadajemy kształt okręgu
+                            .size(40.dp)
+                            .clip(CircleShape)
                             .background(Color(android.graphics.Color.parseColor(color)))
                             .border(2.dp, Color.Black, CircleShape)
                             .clickable {
                                 onColorSelected(color) // Wybór koloru
                             }
-
                     )
                 }
             }
@@ -254,3 +289,13 @@ fun ColorPalette(
         }
     )
 }
+
+// Funkcja pomocnicza do przesuwania elementów na liście
+fun <T> MutableList<T>.move(fromIndex: Int, toIndex: Int) {
+    if (fromIndex in indices && toIndex in indices) {
+        val item = removeAt(fromIndex)
+        add(toIndex, item)
+    }
+}
+
+

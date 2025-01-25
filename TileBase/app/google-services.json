@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "590725160500-agonrlc6r441fsu9pqaih1de08m9t7db.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tilebase",
+            "certificate_hash": "8fd6b13c750dc75aa2dbadb9996497e3385f722e"
+          }
+        },
+        {
           "client_id": "590725160500-chm1jc8hcp8acnh3d5ancj4e1cl9rq16.apps.googleusercontent.com",
           "client_type": 3
         }
