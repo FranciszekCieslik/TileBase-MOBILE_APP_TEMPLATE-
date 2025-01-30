@@ -26,11 +26,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.tilebase.DataStoreProvider
 import com.example.tilebase.RegisterViewModel
 
 @Composable
 fun SettingsScreen(navController: NavController,
-                   viewModel: RegisterViewModel = viewModel()
+                   viewModel: RegisterViewModel = viewModel(),
+                   dataStoreProvider: DataStoreProvider = viewModel()
 ) {
     Scaffold(
         topBar = {
@@ -60,7 +62,8 @@ fun SettingsScreen(navController: NavController,
             ) {
                 // Przycisk wylogowania
                 Button(
-                    onClick = {viewModel.signOut(navController)},
+                    onClick = {viewModel.signOut(navController)
+                              },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
@@ -70,7 +73,8 @@ fun SettingsScreen(navController: NavController,
 
                 // Przycisk usunięcia konta
                 Button(
-                    onClick = {viewModel.removeUser(navController)},
+                    onClick = {viewModel.removeUser(navController)
+                              dataStoreProvider.data.value.clear()},
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),

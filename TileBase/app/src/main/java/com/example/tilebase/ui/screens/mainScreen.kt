@@ -1,9 +1,5 @@
 package com.example.tilebase.ui.screens
 
-//noinspection UsingMaterialAndMaterial3Libraries
-//noinspection UsingMaterialAndMaterial3Libraries
-//noinspection UsingMaterialAndMaterial3Libraries
-
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,7 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
@@ -35,7 +31,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +44,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tilebase.DataStoreProvider
 import com.example.tilebase.Tile
@@ -57,14 +54,16 @@ import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(navController: NavController,
-               dataStoreProvider: DataStoreProvider
+fun MainScreen(
+    navController: NavController,
+    dataStoreProvider: DataStoreProvider = viewModel()
 ) {
+    val data by dataStoreProvider.data.collectAsStateWithLifecycle()
 
     LaunchedEffect(navController.currentBackStackEntry) {
-        (dataStoreProvider.data)
+        dataStoreProvider.loadTileList()
     }
 
     DisposableEffect(Unit) {
@@ -74,27 +73,26 @@ fun MainScreen(navController: NavController,
     }
 
     Scaffold(
-        bottomBar = {
-            BottomNavBar(navController, selectedRoute = "main")
-        },
+        bottomBar = { BottomNavBar(navController, selectedRoute = "main") },
         topBar = {
             TopAppBar(
-                title = {Text("Tile Base", fontSize = 20.sp, fontWeight = FontWeight.Bold)},
+                title = { Text("Tile Base", fontSize = 20.sp, fontWeight = FontWeight.Bold) },
                 backgroundColor = Color.White,
                 contentColor = Color.Black,
-                elevation = 4.dp,
+                elevation = 4.dp
             )
         }
-    ) {
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(padding),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-                TileListScreen(dataStoreProvider.data)
-
+            TileListScreen(tileList = data, onTileListChange = { newList ->
+                dataStoreProvider.updateData(newList)
+            })
         }
     }
 }
@@ -102,27 +100,27 @@ fun MainScreen(navController: NavController,
 //--------------Tiles-----------------------
 
 @Composable
-fun TileListScreen(tileListState: MutableState<TileList>) {
-    // Utwórz SnapshotStateList<Tile>, który będzie obserwował kafelki
+fun TileListScreen(tileList: TileList, onTileListChange: (TileList) -> Unit) {
     val tiles = remember { mutableStateListOf<Tile>() }
-    val tileList: TileList = tileListState.value
+
+    LaunchedEffect(tileList.tiles) {
+        tiles.clear()
+        tiles.addAll(tileList.tiles) // Synchronizuj stan z `TileList`
+    }
 
     val state = rememberReorderableLazyListState(
         onMove = { from, to ->
-            // Zamień elementy na liście
             tiles.move(from.index, to.index)
-            tileList.swapTiles(from.index, to.index) // Aktualizuj TileList
+            tileList.swapTiles(from.index, to.index) // Aktualizuj `TileList`
+            onTileListChange(tileList)
         }
     )
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Tytuł ekranu
         Text(
             text = "Tile List",
             fontSize = 24.sp,
@@ -130,26 +128,20 @@ fun TileListScreen(tileListState: MutableState<TileList>) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Przycisk dodawania kafelka
         IconButton(
             onClick = {
-                val newTile = Tile(id = tiles.size + 1, color = "#ccd0e3") // Domyślnie biały kafelek
+                val newTile = Tile(id = tiles.size + 1, color = "#ccd0e3")
                 tiles.add(newTile)
                 tileList.addTile(newTile)
+                onTileListChange(tileList) // Powiadom o zmianie
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
                 .border(2.dp, Color.Black, RoundedCornerShape(8.dp))
-                .background(
-                    Color(android.graphics.Color.parseColor("#ccd0e3")),
-                    RoundedCornerShape(8.dp)
-                )
+                .background(Color(android.graphics.Color.parseColor("#ccd0e3")), RoundedCornerShape(8.dp))
         ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = "ADD"
-            )
+            Icon(imageVector = Icons.Filled.Add, contentDescription = "ADD")
         }
 
         LazyColumn(
@@ -159,22 +151,24 @@ fun TileListScreen(tileListState: MutableState<TileList>) {
                 .reorderable(state),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            itemsIndexed(tiles, key = { _, tile -> tile.id }) { index, tile ->
+            items(tiles, key = { it.id }) { tile ->
                 ReorderableItem(
                     state = state,
-                    key = tile.id, // Klucz elementu
-                    defaultDraggingModifier = Modifier
+                    key = tile.id
                 ) { isDragging ->
                     DraggableTile(
                         tile = tile,
                         isDragging = isDragging,
                         onRemove = {
                             tiles.remove(tile)
-                            tileList.removeTileById(tile.id) // Usuń z TileList
+                            tileList.removeTileById(tile.id)
+                            onTileListChange(tileList)
                         },
                         updateTileColor = { newColor ->
-                            tiles[index] = tile.copy(color = newColor)
-                            tileList.updateTileColor(tile.id, newColor) // Zaktualizuj kolor w TileList
+                            val updatedTile = tile.copy(color = newColor)
+                            tiles[tiles.indexOf(tile)] = updatedTile
+                            tileList.updateTileColor(tile.id, newColor)
+                            onTileListChange(tileList)
                         }
                     )
                 }
@@ -190,8 +184,9 @@ fun DraggableTile(
     onRemove: () -> Unit,
     updateTileColor: (String) -> Unit
 ) {
-    var isDialogOpen by remember { mutableStateOf(false) }  // Stan dla okna dialogowego
+    var isDialogOpen by remember { mutableStateOf(false) }
     val alpha = if (isDragging) 0.6f else 1f
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -199,12 +194,10 @@ fun DraggableTile(
             .background(Color(android.graphics.Color.parseColor(tile.color)), RoundedCornerShape(8.dp))
             .border(2.dp, Color.Black, RoundedCornerShape(8.dp))
             .padding(8.dp)
-            .alpha(alpha) // Zastosuj przezroczystość
+            .alpha(alpha)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
+            modifier = Modifier.fillMaxSize().padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -214,41 +207,27 @@ fun DraggableTile(
                 fontSize = 16.sp
             )
 
-            // Przycisk do zmiany koloru
-            IconButton(
-                onClick = { isDialogOpen = true }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "edit color",
-                    tint = Color.White
-                )
+            IconButton(onClick = { isDialogOpen = true }) {
+                Icon(imageVector = Icons.Default.Edit, contentDescription = "edit color", tint = Color.White)
             }
 
-            // Przycisk do usunięcia
-            IconButton(
-                onClick = onRemove
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "delete tile",
-                    tint = Color.White
-                )
+            IconButton(onClick = onRemove) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "delete tile", tint = Color.White)
             }
         }
     }
 
-    // Wyświetlanie dialogu z paletą kolorów
     if (isDialogOpen) {
         ColorPalette(
             onDismiss = { isDialogOpen = false },
             onColorSelected = { selectedColor ->
-                updateTileColor(selectedColor) // Przekaż zmianę koloru do rodzica
+                updateTileColor(selectedColor)
                 isDialogOpen = false
             }
         )
     }
 }
+
 
 @Composable
 fun ColorPalette(

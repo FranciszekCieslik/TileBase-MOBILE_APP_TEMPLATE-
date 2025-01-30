@@ -15,10 +15,10 @@ import com.example.tilebase.ui.screens.SettingsScreen
 fun NavGraph(navController: NavHostController, viewModel: RegisterViewModel, dataStoreProvider: DataStoreProvider) {
     NavHost(navController = navController, startDestination = "loading") {
         composable("loading") { LoadingScreen(navController, viewModel) }
-        composable("login") { LoginScreen(navController,viewModel) }
+        composable("login") { LoginScreen(navController,viewModel, dataStoreProvider) }
         composable("register") { RegisterScreen(navController,viewModel) }
         composable("main") { MainScreen(navController, dataStoreProvider)}
         composable("profile") { ProfileScreen(navController, viewModel) }
-        composable("settings") { SettingsScreen(navController, viewModel) }
+        composable("settings") { SettingsScreen(navController, viewModel, dataStoreProvider) }
     }
 }

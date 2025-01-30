@@ -94,5 +94,7 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
+    implementation(libs.androidx.lifecycle.runtime.compose.v262) // Sprawdź najnowszą wersję!
+
 
 }

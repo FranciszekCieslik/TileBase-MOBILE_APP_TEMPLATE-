@@ -12,6 +12,8 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 kotlinxSerializationJson = "1.8.0"
+lifecycleRuntimeCompose = "2.8.7"
+lifecycleRuntimeComposeVersion = "2.6.2"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.0"
 composeBom = "2024.04.01"
@@ -30,6 +32,8 @@ accompanist-reorderable = { module = "com.google.accompanist:accompanist-reorder
 accompanist-reorderable-v0320 = { module = "com.google.accompanist:accompanist-reorderable", version.ref = "accompanistReorderableVersion" }
 accompanist-reorderable-v0370 = { module = "com.google.accompanist:accompanist-reorderable", version.ref = "googleAccompanistReorderable" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
+androidx-lifecycle-runtime-compose-v262 = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeComposeVersion" }
 androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
 androidx-material3-v110 = { module = "androidx.compose.material3:material3", version.ref = "material3Version" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }

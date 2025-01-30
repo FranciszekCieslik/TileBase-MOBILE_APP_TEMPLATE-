@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
         db = Firebase.firestore
 
         dataStoreProvider = DataStoreProvider()
+        dataStoreProvider.loadTileList()
         // Initialize Firebase Auth
         setContent {
             navController = rememberNavController() // Inicjalizacja navController

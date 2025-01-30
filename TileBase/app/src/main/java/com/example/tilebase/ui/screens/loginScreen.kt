@@ -32,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.tilebase.DataStoreProvider
 import com.example.tilebase.MainActivity
 import com.example.tilebase.R
 import com.example.tilebase.RegisterViewModel
@@ -40,7 +41,8 @@ import com.example.tilebase.RegisterViewModel
 @Composable
 fun LoginScreen(
     navController: NavController,
-    viewModel: RegisterViewModel = viewModel()
+    viewModel: RegisterViewModel = viewModel(),
+    dataStoreProvider: DataStoreProvider = viewModel()
 ) {
     val state = viewModel.state.collectAsState()
     val activity = LocalContext.current as? MainActivity
@@ -107,7 +109,8 @@ fun LoginScreen(
         }
         Spacer(modifier = Modifier.height(8.dp))
         Button(
-            onClick = { activity.startSignIn()},
+            onClick = { activity.startSignIn()
+                dataStoreProvider.loadTileList() },
             modifier = Modifier
                 .padding(16.dp)
                 .border (2.dp, Color.Black, RoundedCornerShape(18.dp)) // Zaokrąglona granica

@@ -8,7 +8,7 @@ data class Tile(
 )
 
 class TileList {
-    private val tiles: MutableList<Tile> = mutableListOf()
+    var tiles: MutableList<Tile> = mutableListOf()
 
     fun addTile(tile: Tile) {
         updateId()
@@ -59,4 +59,12 @@ class TileList {
     fun clear() {
         tiles.clear()
     }
+
+    fun overwriteWith(newTileList: TileList) {
+        tiles.clear()  // Czyścimy obecną listę
+        tiles.addAll(newTileList.tiles)  // Kopiujemy dane z nowej listy
+        updateId()  // Aktualizujemy ID kafelków
+    }
+
+
 }
