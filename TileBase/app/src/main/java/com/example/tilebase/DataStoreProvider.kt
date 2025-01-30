@@ -36,7 +36,7 @@ class DataStoreProvider {
                                 val id = (tileMap["id"] as? Number)?.toInt() ?: return@forEach
                                 val color = tileMap["color"] as? String ?: return@forEach
                                 val tile = Tile(id, color)
-                                var tiles: TileList = data.value
+                                val tiles: TileList = data.value
                                 tiles.addTile(tile) // Dodanie do TileList
                                 data.value = tiles
                             } catch (e: Exception) {
