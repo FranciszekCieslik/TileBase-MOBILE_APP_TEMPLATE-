@@ -1,46 +1,53 @@
-# TileBase-MOBILE_APP_TEMPLATE-
+# TileBase - MOBILE APP TEMPLATE
 
-TileBase to szablon aplikacji mobilnej, zaprojektowany z użyciem Kotlin, Jetpack Compose i architektury MVVM. Aplikacja oferuje podstawowe funkcjonalności, takie jak rejestracja, logowanie, zapamiętywanie stanu użytkownika, zarządzanie kontem oraz główny widok z edytowalnymi kafelkami. 
-
----
-
-### Funkcjonalności: 
-- Rejestracja (sprawdzenie poprawności E-Mail, Hasła oraz akceptacji regulaminu i polityki prywatności) 
-- Logowanie 
-- Zapamiętanie stanu zalogowania 
-- Przycisk otwierający widok ustawień 
-- Ustawienia: wylogowywanie,  usuwanie konta 
-- Menu z głównym widokiem aplikacji i widokiem profilu 
-- Widok Profilu: 
-- Nazwa użytkownika 
-- Używany e-mail 
-- Główny widok Aplikacji: 
-- Lista “kafelków” z opcją dodawania i usuwania, oraz nadawania koloru 
+TileBase is a mobile application template designed using Kotlin, Jetpack Compose, and the MVVM architecture. The app provides essential functionalities such as registration, login, user session management, account handling, and a main view with editable tiles.
 
 ---
 
-### Plan architektury
-1. **Warstwa prezentacji (UI)**:
-   - Jetpack Compose dla tworzenia interfejsu użytkownika.
-   - Podział na ekrany: Rejestracja, Logowanie, Główny widok, Profil, Ustawienia.
+[Screencast from 2025-02-05 00-02-18.webm](https://github.com/user-attachments/assets/3dd20773-4eaf-4dc6-a3e2-43d821670b94)
 
-2. **Warstwa ViewModel (MVVM)**:
-   - Każdy ekran ma swój ViewModel zarządzający logiką i stanem ekranu.
-   - Użycie `StateFlow` lub `LiveData` do zarządzania stanem UI.
-
-3. **Warstwa danych**:
-   - Symulacja bazy danych z wykorzystaniem Room (lokalna baza danych SQLite).
-   - Przy braku serwera można symulować API, używając klasy Repository z lokalnym przechowywaniem danych.
-
-4. **Routing i nawigacja**:
-   - Użycie Jetpack Navigation Compose do zarządzania nawigacją między ekranami.
+---
+### Features:
+- **Registration** (validation of Email, Password, and acceptance of Terms and Privacy Policy)
+- **Login**
+- **User session persistence**
+- **Settings button** to open the settings view
+- **Settings:** Logout, Account deletion
+- **Navigation menu** with access to the Main View and Profile View
+- **Profile View:**
+  - Username
+  - Registered Email
+- **Main View:**
+  - List of "tiles" with options to add, remove, and assign colors
 
 ---
 
-### Biblioteki
-1. **Jetpack Compose** – do tworzenia interfejsu użytkownika.
-2. **Navigation Compose** – do nawigacji między ekranami.
-3. **Room** – lokalna baza danych do przechowywania danych użytkowników.
-4. **Hilt** – do Dependency Injection, co ułatwia zarządzanie zależnościami.
-5. **DataStore** – do zapisywania stanu zalogowania.
-6. **Material3** – do stylizacji aplikacji.
+### Architecture Plan
+1. **Presentation Layer (UI):**
+   - Jetpack Compose for UI development.
+   - Screens: Registration, Login, Main View, Profile, Settings.
+
+2. **ViewModel Layer (MVVM):**
+   - Each screen has its own ViewModel to handle logic and state management.
+   - Uses `StateFlow` or `LiveData` for UI state handling.
+
+3. **Data Layer:**
+   - Room database (SQLite) for local data storage.
+   - If no server is available, API simulation is handled via a Repository class with local data storage.
+   - Firebase integration for authentication and real-time data storage.
+
+4. **Routing and Navigation:**
+   - Jetpack Navigation Compose for managing screen transitions.
+
+---
+
+### Libraries:
+```md
+1. **Jetpack Compose** – for UI development.
+2. **Navigation Compose** – for managing screen navigation.
+3. **Material3** – for app styling.
+4. **Room** – for local database storage.
+5. **Firebase Authentication** – for user authentication.
+6. **Firebase Firestore** – for cloud-based real-time data storage.
+```
+
